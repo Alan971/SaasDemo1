@@ -1,0 +1,130 @@
+{% extends 'base.html.twig' %}
+
+{% block title %}Lettre de motivation auto{% endblock %}
+
+{% block body %}
+ <section class="flex justify-center items-center h-screen">
+    <div class="bg-white p-8 rounded shadow-lg w-96 dark:bg-zinc-800">
+        <h2 class="text-2xl font-bold mb-4"> Crééz votre lettre de motivation personalisée</h2>
+    
+        {{ form_start(form, {'method': 'POST', 'action': path('app_app'), 'attr': {'data-turbo': 'false'}})}}
+            {{ form_row(form.nom) }}
+            {{ form_row(form.prenom) }}
+            {{ form_row(form.diplome) }}
+            {{ form_row(form.entreprise) }}
+            {{ form_row(form.poste) }}  
+            {{ form_row(form.annonce) }}
+            <button type="submit" class="bg-blue-500 hover:bg-blue-700 text-white font-bold py-2 px-4 rounded w-full">
+                Générer une lettre de motivation
+            </button>
+        {{ form_end(form) }}  
+        {% if form.vars.errors|length > 0 %}
+            <div class="form-errors">
+                {% for error in form.vars.errors %}
+                    <div>{{ error.message }}</div>
+                {% endfor %}
+            </div>
+        {% endif %}
+
+    </div>
+
+    <hr>
+
+    
+        <div id="modalOverlay" class="fixed inset-0 bg-grey bg-opacity-80 flex items-center justify-center hidden transition-opacity duration-300">
+    {# <div id="modalContent" class="bg-white rounded shadow-lg dark:bg-zinc-800 relative max-w-[70vw] max-h-[70vh] w-60 h-60 overflow-y-auto overflow-x-hidden transform scale-95 transition-transform duration-300"> #}
+                    <div id="modalContent" class="bg-white rounded shadow-lg dark:bg-zinc-800 w-[70vw] h-70vh overflow-y-auto overflow-x-hidden transform scale-95 transition-transform duration-300">
+
+                <div id="conservationMessage" class="sticky top-0 left-0 right-0 bg-gray-200 dark:bg-zinc-700 p-2 flex justify-end space-x-2 z-10">
+                    <!-- Bouton Copier -->
+                    <button onclick="copyCode()" id = "copieButton" class="bg-blue-500 hover:bg-blue-600 text-white px-2 py-1 rounded text-xs w-auto">
+                        <svg width="24" height="24" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg" class="icon-xs">
+                            <path fill-rule="evenodd" clip-rule="evenodd" d="M7 5C7 3.34315 8.34315 2 10 2H19C20.6569 2 22 3.34315 22 5V14C22 15.6569 20.6569 17 19 17H17V19C17 20.6569 15.6569 22 14 22H5C3.34315 22 2 20.6569 2 19V10C2 8.34315 3.34315 7 5 7H7V5ZM9 7H14C15.6569 7 17 8.34315 17 10V15H19C19.5523 15 20 14.5523 20 14V5C20 4.44772 19.5523 4 19 4H10C9.44772 4 9 4.44772 9 5V7ZM5 9C4.44772 9 4 9.44772 4 10V19C4 19.5523 4.44772 20 5 20H14C14.5523 20 15 19.5523 15 19V10C15 9.44772 14.5523 9 14 9H5Z" fill="currentColor">
+                            </path>
+                        </svg>
+                        Copier
+                    </button>
+                    <!-- Bouton Modifier -->
+                    <button onclick="editCode()" class="bg-yellow-500 hover:bg-yellow-600 text-white px-2 py-1 rounded text-sm">
+                        Modifier
+                    </button>
+                    <!-- Bouton Télécharger -->
+                    <button onclick="downloadCode()" class="bg-green-500 hover:bg-green-600 text-white px-2 py-1 rounded text-sm">
+                        Télécharger
+                    </button>
+                    <button onclick="closeModal()" class="bg-red-500 hover:bg-red-600 text-white px-2 py-1 rounded text-sm">
+                        ✖
+                    </button>
+                </div>
+                {% if message is defined and message is not empty %}
+                    <div class= "p-4 flex-1">
+                        {% if message.content != '' %}
+                            <p id="codeBlock" class="whitespace-pre-line break-words"> {{ message.content|nl2br }}</p> 
+                        {% endif %}
+
+                        {% if message.error != '' %}
+                            <p class = "bg-red-100 text-red-700 p-2 rounded-lg">Erreur : <br> {{ message.error }}</p> 
+                        {% endif %}
+                    </div>
+                {% else %}
+                    <p>Aucun message</p>
+                {% endif %}
+            </div>
+        </div>
+</section>
+
+{% endblock %}
+
+{% block javascripts %}
+<script>
+document.addEventListener("DOMContentLoaded", function () {
+    const modalOverlay = document.getElementById("modalOverlay");
+    const modalContent = document.getElementById("modalContent");
+
+    window.openModal = function () {
+        modalOverlay.classList.remove("hidden");
+        setTimeout(() => {
+            modalOverlay.classList.add("opacity-100");
+            modalContent.classList.add("scale-100");
+        }, 10); // Petit délai pour lancer l'animation
+    }
+
+    window.closeModal = function () {
+        modalOverlay.classList.remove("opacity-100");
+        modalContent.classList.remove("scale-100");
+        setTimeout(() => {
+            modalOverlay.classList.add("hidden");
+        }, 300); // Attend la fin de l'animation
+    }
+    {% if message is not empty %}
+        openModal();
+    {% endif %}
+});
+
+        function copyCode() {
+            const code = document.querySelector("#codeBlock").innerText;
+            navigator.clipboard.writeText(code).then(() => {
+                document.querySelector("#copieButton").innerText = "Copié !";
+            }).catch(err => {
+                console.error("Erreur lors de la copie :", err);
+            });
+        }
+
+        function editCode() {
+            const code = document.querySelector("#codeBlock").innerText;
+            const newCode = prompt("Modifiez le code :", code);
+            if (newCode !== null) {
+                document.querySelector("#codeBlock code").innerText = newCode;
+            }
+        }
+
+        function downloadCode() {
+            const code = document.querySelector("#codeBlock").innerText;
+            const blob = new Blob([code], { type: "text/plain" });
+            const a = document.createElement("a");
+            a.href = URL.createObjectURL(blob);
+            a.download = "reponse.txt";
+            a.click();
+        }
+</script>
+{% endblock %}

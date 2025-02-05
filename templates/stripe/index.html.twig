@@ -1,0 +1,9 @@
+{% extends 'base.html.twig' %}
+
+{% block title %}Hello StripeController!{% endblock %}
+
+{% block body %}
+<form action = "/create-checkout-session" method = "post">
+    <button type = "submit">Checkout</button>
+</form>
+{% endblock %}

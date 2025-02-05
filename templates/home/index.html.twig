@@ -1,0 +1,30 @@
+{% extends 'base.html.twig' %}
+
+{% block title %}Hello HomeController!{% endblock %}
+
+{% block body %}
+
+
+    <!-- Hero Section -->
+    <section class="bg-blue-500 text-white text-center py-20">
+        <h1 class="text-4xl font-bold">Bienvenue sur Mon Site</h1>
+        <p class="text-lg mt-4">Découvrez nos services exceptionnels</p>
+        <a href="#services" class="mt-6 inline-block bg-white text-blue-500 font-bold py-3 px-6 rounded">Voir les services</a>
+        <a href="{{ path('app_app') }}" class="mt-6 inline-block bg-white text-blue-500 font-bold py-3 px-6 rounded">Voir le formulaire de création de lettre de motivation</a>
+        <a href="{{ path('app_login') }}" class="mt-6 inline-block bg-white text-blue-500 font-bold py-3 px-6 rounded">Se connecter</a>
+        <a href="{{ path('app_register') }}" class="mt-6 inline-block bg-white text-blue-500 font-bold py-3 px-6 rounded">S'inscrire</a>
+    </section>    
+    {% if app.user %}
+        <section class="bg-green-500 text-white text-center py-20">
+            <h2 class="text-4xl font-bold">Règlements </h2>
+        {% if app.user.isPaiement %}
+                <p class="text-lg mt-4">Vos règlements sont à jour : accès au site autorisé</p>
+                <a href = "{{ path('app_unsetpaiement') }}" class="mt-6 inline-block bg-white text-blue-500 font-bold py-3 px-6 rounded">annuler le paiement pour tester</a>
+            </section>
+        {% else %}
+                <p class="text-lg mt-4">Veuillez effectuer un paiement pour accéder au site</p>
+                <a href='{{ path('app_create_checkout_session') }}' class='mt-6 inline-block bg-white text-blue-500 font-bold py-3 px-6 rounded'>Payer</a>
+            </section>
+        {% endif %}
+    {% endif %}
+{% endblock %}
